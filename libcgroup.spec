@@ -3,14 +3,14 @@
 %define	libname	%mklibname %{mname} %{major}
 %define	devname	%mklibname %{mname} -d
 
-Name:		libcgroup
+Name:		lib%{mname}
 Summary:	Tools and libraries to control and monitor control groups
 Group:		System/Base
-Version:	0.35
+Version:	0.36.2
 Release:	%mkrel 1
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
-Source0:	http://downloads.sourceforge.net/libcg/%{name}-v%{version}.tar.bz2
+Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
 Source1:	libcgroup-README.Mandriva
 Patch0:		libcgroup-fedora-config.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-%{release}-buildroot
@@ -34,12 +34,12 @@ Requires(preun): rpm-helper
 Control groups infrastructure. The tools to manipulate, control, administrate
 and monitor control groups and the associated controllers.
 
-%package	pam
+%package -n	pam_%{mname}
 Summary:	A Pluggable Authentication Module for libcgroup
-Group:		System Environment/Base
+Group:		System/Libraries
 Requires:	%{libname} = %{version}-%{release}
 
-%description	pam
+%description -n	pam_%{mname}
 Linux-PAM module, which allows administrators to classify the user's login
 processes to pre-configured control group.
 
@@ -58,7 +58,7 @@ and monitor control groups and the associated controllers.
 %package -n	%{devname}
 Summary:	Development libraries to develop applications that utilize control groups
 Group:		Development/C
-Requires:	%{mname} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 
 %description -n	%{devname}
@@ -71,37 +71,40 @@ provide scripts to manage that configuration.
 %patch0 -p1 -b .config
 cp %{SOURCE1} README.Mandriva
 
-autoreconf -i
-
 %build
-%configure	--bindir=/bin \
+%configure2_5x	--bindir=/bin \
 		--sbindir=/sbin \
-		--libdir=/%{_lib}
+		--libdir=/%{_lib} \
+		--enable-initscript-install
 %make
 
 %install
 rm -rf %{buildroot}
 %makeinstall_std
 
-mkdir -p %{buildroot}%{_initrddir}
-mv %{buildroot}%{_sysconfdir}/init.d/* %{buildroot}%{_initrddir}
-
 # install config files
 install -m644 samples/cgred.conf -D %{buildroot}%{_sysconfdir}/sysconfig/cgred.conf
 install -m644 samples/cgconfig.conf -D %{buildroot}%{_sysconfdir}/cgconfig.conf
+install -m644 samples/cgconfig.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig/cgconfig
 install -m644 samples/cgrules.conf -D %{buildroot}%{_sysconfdir}/cgrules.conf
 
 # sanitize pam module, we need only pam_cgroup.so in the right directory
-mkdir -p %{buildroot}/%{_lib}/security
-mv -f %{buildroot}/%{_lib}/pam_cgroup.so.*.*.* %{buildroot}/%{_lib}/security/pam_cgroup.so
-rm -f %{buildroot}/%{_lib}/pam_cgroup*
+rm -f %{buildroot}/%{_lib}/security/pam_cgroup.so
+mv -f %{buildroot}/%{_lib}/security/pam_cgroup.so.*.*.* %{buildroot}/%{_lib}/security/pam_cgroup.so
+rm -f %{buildroot}/%{_lib}/security/pam_cgroup.so.*
+rm -f %{buildroot}/%{_lib}/security/pam_cgroup.la
 
 # move the devel stuff to /usr
 mkdir -p %{buildroot}%{_libdir}
-mv -f %{buildroot}/%{_lib}/libcgroup.la %{buildroot}%{_libdir}
-rm -f %{buildroot}/%{_lib}/libcgroup.so
-ln -sf ../../%{_lib}/libcgroup.so.%{major} %{buildroot}%{_libdir}/libcgroup.so
+mv -f %{buildroot}/%{_lib}/lib%{mname}.la %{buildroot}%{_libdir}
+rm -f %{buildroot}/%{_lib}/lib%{mname}.so
+ln -sf ../../%{_lib}/lib%{mname}.so.%{major} %{buildroot}%{_libdir}/lib%{mname}.so
 
+# pkgconfig file as well
+mkdir -p %{buildroot}%{_libdir}/pkgconfig
+mv -f %{buildroot}/%{_lib}/pkgconfig/%{name}.pc %{buildroot}%{_libdir}/pkgconfig
+
+# For now we will keep this, but this will be moved to /sys/fs/cgroup in later versions
 # pre-create /cgroup directory
 mkdir -p %{buildroot}/cgroup
 
@@ -121,6 +124,7 @@ rm -rf %{buildroot}
 %doc README_daemon README.Mandriva
 %dir /cgroup
 %config(noreplace) %{_sysconfdir}/sysconfig/cgred.conf
+%config(noreplace) %{_sysconfdir}/sysconfig/cgconfig
 %config(noreplace) %{_sysconfdir}/cgconfig.conf
 %config(noreplace) %{_sysconfdir}/cgrules.conf
 %{_mandir}/man[158]/*.[158]*
@@ -138,18 +142,20 @@ rm -rf %{buildroot}
 /sbin/cgconfigparser
 /sbin/cgrulesengd
 
-%files pam
+%files -n pam_%{mname}
 %defattr(-,root,root)
 /%{_lib}/security/pam_cgroup.so
 
 %files -n %{libname}
 %defattr(-,root,root)
 /%{_lib}/lib%{mname}.so.%{major}
-/%{_lib}/lib%{mname}.so.%{major}.%{version}
+/%{_lib}/lib%{mname}.so.%{major}.*
 
 %files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/libcgroup.h
+%{_includedir}/libcgroup
+%{_libdir}/pkgconfig/%{name}.pc
 %{_libdir}/lib%{mname}.so
 %{_libdir}/lib%{mname}.la
 
