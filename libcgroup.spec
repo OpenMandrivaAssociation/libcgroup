@@ -6,7 +6,7 @@
 Name:		lib%{mname}
 Summary:	Tools and libraries to control and monitor control groups
 Group:		System/Base
-Version:	0.36.2
+Version:	0.37.1
 Release:	%mkrel 1
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
@@ -136,6 +136,7 @@ rm -rf %{buildroot}
 /bin/cgexec
 /bin/cgget
 /bin/cgset
+/bin/cgsnapshot
 /bin/lscgroup
 /bin/lssubsys
 /sbin/cgclear
