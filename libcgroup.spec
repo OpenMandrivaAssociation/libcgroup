@@ -3,8 +3,8 @@
 %define	libname	%mklibname %{mname} %{major}
 %define	devname	%mklibname %{mname} -d
 
-Name:		lib%{mname}
 Summary:	Tools and libraries to control and monitor control groups
+Name:		lib%{mname}
 Group:		System/Base
 Version:	0.37.1
 Release:	%mkrel 1
@@ -13,11 +13,14 @@ URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
 Source1:	libcgroup-README.Mandriva
 Patch0:		libcgroup-fedora-config.patch
+Patch1:		libcgroup-0.36.2-systemd.patch
+Patch2:		libcgroup-0.37.1-systemd.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-%{release}-buildroot
 BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
 BuildRequires:	coreutils
+Requires(pre):	shadow-utils
 
 %description
 Control groups infrastructure. The tools and library to manipulate, control,
@@ -69,6 +72,9 @@ provide scripts to manage that configuration.
 %prep
 %setup -q
 %patch0 -p1 -b .config
+%patch1 -p1
+%patch2 -p1
+
 cp %{SOURCE1} README.Mandriva
 
 %build
