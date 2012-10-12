@@ -6,15 +6,13 @@
 Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
-Version:	0.37.1
-Release:	%mkrel 2
+Version:	0.38
+Release:	1
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
 Source1:	libcgroup-README.Mandriva
 Patch0:		libcgroup-fedora-config.patch
-Patch1:		libcgroup-0.36.2-systemd.patch
-Patch2:		libcgroup-0.37.1-systemd.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-%{release}-buildroot
 BuildRequires:	pam-devel
 BuildRequires:	byacc
@@ -72,8 +70,6 @@ provide scripts to manage that configuration.
 %prep
 %setup -q
 %patch0 -p1 -b .config
-%patch1 -p1
-%patch2 -p1
 
 cp %{SOURCE1} README.Mandriva
 
@@ -81,7 +77,8 @@ cp %{SOURCE1} README.Mandriva
 %configure2_5x	--bindir=/bin \
 		--sbindir=/sbin \
 		--libdir=/%{_lib} \
-		--enable-initscript-install
+		--enable-initscript-install \
+		--enable-opaque-hierarchy="name=systemd"
 %make
 
 %install
