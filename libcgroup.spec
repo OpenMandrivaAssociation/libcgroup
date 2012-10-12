@@ -164,5 +164,4 @@ rm -rf %{buildroot}
 %{_includedir}/libcgroup
 %{_libdir}/pkgconfig/%{name}.pc
 %{_libdir}/lib%{mname}.so
-%{_libdir}/lib%{mname}.la
 
