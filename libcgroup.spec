@@ -6,14 +6,15 @@
 Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
-Version:	0.38
-Release:	1
+Version:	0.37.1
+Release:	3
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
 Source1:	libcgroup-README.Mandriva
 Patch0:		libcgroup-fedora-config.patch
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-%{release}-buildroot
+Patch1:		libcgroup-0.36.2-systemd.patch
+Patch2:		libcgroup-0.37.1-systemd.patch
 BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
@@ -70,6 +71,8 @@ provide scripts to manage that configuration.
 %prep
 %setup -q
 %patch0 -p1 -b .config
+%patch1 -p1
+%patch2 -p1
 
 cp %{SOURCE1} README.Mandriva
 
@@ -77,8 +80,7 @@ cp %{SOURCE1} README.Mandriva
 %configure2_5x	--bindir=/bin \
 		--sbindir=/sbin \
 		--libdir=/%{_lib} \
-		--enable-initscript-install \
-		--enable-opaque-hierarchy="name=systemd"
+		--enable-initscript-install
 %make
 
 %install
@@ -111,9 +113,6 @@ mv -f %{buildroot}/%{_lib}/pkgconfig/%{name}.pc %{buildroot}%{_libdir}/pkgconfig
 # pre-create /cgroup directory
 mkdir -p %{buildroot}/cgroup
 
-%clean
-rm -rf %{buildroot}
-
 %post -n %{mname}
 %_post_service cgred
 %_post_service cgconfig
@@ -123,7 +122,6 @@ rm -rf %{buildroot}
 %_preun_service cgred
 
 %files -n %{mname}
-%defattr(-,root,root)
 %doc README_daemon README.Mandriva
 %dir /cgroup
 %config(noreplace) %{_sysconfdir}/sysconfig/cgred.conf
@@ -147,16 +145,13 @@ rm -rf %{buildroot}
 /sbin/cgrulesengd
 
 %files -n pam_%{mname}
-%defattr(-,root,root)
 /%{_lib}/security/pam_cgroup.so
 
 %files -n %{libname}
-%defattr(-,root,root)
 /%{_lib}/lib%{mname}.so.%{major}
 /%{_lib}/lib%{mname}.so.%{major}.*
 
 %files -n %{devname}
-%defattr(-,root,root)
 %{_includedir}/libcgroup.h
 %{_includedir}/libcgroup
 %{_libdir}/pkgconfig/%{name}.pc
