@@ -6,15 +6,16 @@
 Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
-Version:	0.37.1
-Release:	3
+Version:	0.38
+Release:	1
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
-Source1:	libcgroup-README.Mandriva
+Source1:	cgconfig.service
+Source2:	cgred.service
+Source3:	cgred.sysconfig
+Source4:	libcgroup-README.Mandriva
 Patch0:		libcgroup-fedora-config.patch
-Patch1:		libcgroup-0.36.2-systemd.patch
-Patch2:		libcgroup-0.37.1-systemd.patch
 BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
@@ -71,16 +72,14 @@ provide scripts to manage that configuration.
 %prep
 %setup -q
 %patch0 -p1 -b .config
-%patch1 -p1
-%patch2 -p1
 
-cp %{SOURCE1} README.Mandriva
+cp %{SOURCE4} README.OpenMandriva
 
 %build
 %configure2_5x	--bindir=/bin \
 		--sbindir=/sbin \
 		--libdir=/%{_lib} \
-		--enable-initscript-install
+		--enable-opaque-hierarchy="name=systemd"
 %make
 
 %install
@@ -88,16 +87,25 @@ rm -rf %{buildroot}
 %makeinstall_std
 
 # install config files
-install -m644 samples/cgred.conf -D %{buildroot}%{_sysconfdir}/sysconfig/cgred.conf
 install -m644 samples/cgconfig.conf -D %{buildroot}%{_sysconfdir}/cgconfig.conf
 install -m644 samples/cgconfig.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig/cgconfig
 install -m644 samples/cgrules.conf -D %{buildroot}%{_sysconfdir}/cgrules.conf
+install -m644 samples/cgsnapshot_blacklist.conf %{buildroot}/%{_sysconfdir}/cgsnapshot_blacklist.conf
+
+
 
 # sanitize pam module, we need only pam_cgroup.so in the right directory
 rm -f %{buildroot}/%{_lib}/security/pam_cgroup.so
 mv -f %{buildroot}/%{_lib}/security/pam_cgroup.so.*.*.* %{buildroot}/%{_lib}/security/pam_cgroup.so
 rm -f %{buildroot}/%{_lib}/security/pam_cgroup.so.*
 rm -f %{buildroot}/%{_lib}/security/pam_cgroup.la
+
+# install unit and sysconfig files
+install -d %{buildroot}%{_unitdir}
+install -m 644 %SOURCE1 %{buildroot}%{_unitdir}/
+install -m 644 %SOURCE2 %{buildroot}%{_unitdir}/
+install -d %{buildroot}%{_sysconfdir}/sysconfig
+install -m 644 %SOURCE3 %{buildroot}%{_sysconfdir}/sysconfig/cgred
 
 # move the devel stuff to /usr
 mkdir -p %{buildroot}%{_libdir}
@@ -122,15 +130,16 @@ mkdir -p %{buildroot}/cgroup
 %_preun_service cgred
 
 %files -n %{mname}
-%doc README_daemon README.Mandriva
+%doc README_daemon README.OpenMandriva
 %dir /cgroup
-%config(noreplace) %{_sysconfdir}/sysconfig/cgred.conf
+%config(noreplace) %{_sysconfdir}/sysconfig/cgred
 %config(noreplace) %{_sysconfdir}/sysconfig/cgconfig
 %config(noreplace) %{_sysconfdir}/cgconfig.conf
 %config(noreplace) %{_sysconfdir}/cgrules.conf
+%config(noreplace) %{_sysconfdir}/cgsnapshot_blacklist.conf
 %{_mandir}/man[158]/*.[158]*
-%attr(755,root,root) %{_initrddir}/cgconfig
-%attr(755,root,root) %{_initrddir}/cgred
+%{_unitdir}/cgconfig.service
+%{_unitdir}/cgred.service
 /bin/cgclassify
 /bin/cgcreate
 /bin/cgdelete
