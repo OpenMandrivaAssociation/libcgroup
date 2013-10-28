@@ -5,7 +5,7 @@ After=syslog.target
 [Service]
 Type=forking
 EnvironmentFile=-/etc/sysconfig/cgred
-ExecStart=/usr/sbin/cgrulesengd $OPTIONS
+ExecStart=/sbin/cgrulesengd $OPTIONS
 
 [Install]
 WantedBy=multi-user.target
