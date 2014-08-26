@@ -1,2 +1,4 @@
+removed_sources:
+  libcgroup-0.37.1.tar.bz2: e5b617d3e68d193268aae9bab2d2fe4e888cad00
 sources:
-  "libcgroup-0.37.1.tar.bz2": e5b617d3e68d193268aae9bab2d2fe4e888cad00
+  libcgroup-0.38.tar.bz2: 87fd6590e4fd8010217345171a019905a568bbd2
