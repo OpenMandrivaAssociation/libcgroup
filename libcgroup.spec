@@ -6,8 +6,8 @@
 Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
-Version:	0.38
-Release:	9
+Version:	0.41
+Release:	1
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
@@ -15,7 +15,13 @@ Source1:	cgconfig.service
 Source2:	cgred.service
 Source3:	cgred.sysconfig
 Source4:	libcgroup-README.Mandriva
-Patch0:		libcgroup-fedora-config.patch
+Patch0:		fedora-config.patch
+Patch1:		libcgroup-0.37-chmod.patch
+Patch2:		libcgroup-0.40.rc1-coverity.patch
+Patch3:		libcgroup-0.40.rc1-fread.patch
+Patch4:		libcgroup-0.40.rc1-templates-fix.patch
+Patch5:		libcgroup-0.41-lex.patch
+Patch6:		libcgroup-0.41-api.c-support-for-setting-multiline-values-in-contro.patch
 BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
@@ -71,19 +77,18 @@ provide scripts to manage that configuration.
 
 %prep
 %setup -q
-%patch0 -p1 -b .config
+%apply_patches
 
 cp %{SOURCE4} README.OpenMandriva
 
 %build
-%configure2_5x	--bindir=/bin \
+%configure	--bindir=/bin \
 		--sbindir=/sbin \
 		--libdir=/%{_lib} \
 		--enable-opaque-hierarchy="name=systemd"
 %make
 
 %install
-rm -rf %{buildroot}
 %makeinstall_std
 
 # install config files
