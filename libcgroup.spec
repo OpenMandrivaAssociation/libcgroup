@@ -7,7 +7,7 @@ Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
 Version:	0.38
-Release:	8
+Release:	8.1
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
@@ -120,6 +120,9 @@ mv -f %{buildroot}/%{_lib}/pkgconfig/%{name}.pc %{buildroot}%{_libdir}/pkgconfig
 # For now we will keep this, but this will be moved to /sys/fs/cgroup in later versions
 # pre-create /cgroup directory
 mkdir -p %{buildroot}/cgroup
+
+%pre -n %{mname}
+%_pre_groupadd cgred
 
 %post -n %{mname}
 %_post_service cgred
