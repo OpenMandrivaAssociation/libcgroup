@@ -1,5 +1,5 @@
-%define	major	1
-%define	mname	cgroup
+%define	major 1
+%define	mname cgroup
 %define	libname	%mklibname %{mname} %{major}
 %define	devname	%mklibname %{mname} -d
 
@@ -7,7 +7,7 @@ Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
 Version:	0.41
-Release:	2
+Release:	3
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
@@ -26,7 +26,7 @@ BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
 BuildRequires:	coreutils
-Requires(pre):	shadow-utils
+Requires(pre):	shadow
 
 %description
 Control groups infrastructure. The tools and library to manipulate, control,
@@ -126,13 +126,14 @@ mv -f %{buildroot}/%{_lib}/pkgconfig/%{name}.pc %{buildroot}%{_libdir}/pkgconfig
 # pre-create /cgroup directory
 mkdir -p %{buildroot}/cgroup
 
-%post -n %{mname}
-%_post_service cgred
-%_post_service cgconfig
+install -d %{buildroot}%{_presetdir}
+cat > %{buildroot}%{_presetdir}/86-libcgroup.preset << EOF
+enable cgconfig.service
+enable cgred.service
+EOF
 
-%preun -n %{mname}
-%_preun_service cgconfig
-%_preun_service cgred
+%pre -n %{mname}
+%_pre_groupadd cgred
 
 %files -n %{mname}
 %doc README_daemon README.OpenMandriva
@@ -143,6 +144,7 @@ mkdir -p %{buildroot}/cgroup
 %config(noreplace) %{_sysconfdir}/cgrules.conf
 %config(noreplace) %{_sysconfdir}/cgsnapshot_blacklist.conf
 %{_mandir}/man[158]/*.[158]*
+%{_presetdir}/86-libcgroup.preset
 %{_unitdir}/cgconfig.service
 %{_unitdir}/cgred.service
 /bin/cgclassify
