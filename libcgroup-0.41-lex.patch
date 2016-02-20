@@ -9,8 +9,8 @@ Subject: [PATCH] lex updated, additional '\' char for ID token
 
 diff --git a/libcgroup-0.41/src/lex.l b/libcgroup-0.41/src/lex.l
 index 1b357db..d7bf575 100644
---- a/src/lex.l
-+++ b/src/lex.l
+--- a/libcgroup-0.41/src/lex.l
++++ b/libcgroup-0.41/src/lex.l
 @@ -43,7 +43,7 @@ jmp_buf parser_error_env;
  "namespace"	{return NAMESPACE;}
  "template"	{return TEMPLATE;}

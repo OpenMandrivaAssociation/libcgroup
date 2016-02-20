@@ -7,14 +7,11 @@ Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
 Version:	0.41
-Release:	1
+Release:	1.1
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
 Source1:	cgconfig.service
-Source2:	cgred.service
-Source3:	cgred.sysconfig
-Source4:	libcgroup-README.Mandriva
 Patch0:		fedora-config.patch
 Patch1:		libcgroup-0.37-chmod.patch
 Patch2:		libcgroup-0.40.rc1-coverity.patch
@@ -26,24 +23,24 @@ BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
 BuildRequires:	coreutils
-Requires(pre):	shadow-utils
+Requires(pre):	shadow
 
 %description
 Control groups infrastructure. The tools and library to manipulate, control,
 administrate and monitor control groups and the associated controllers.
 
-%package -n	%{mname}
+%package -n %{mname}
 Summary:	Tools to control and monitor control groups 
 Group:		System/Base
 Provides:	%{name} = %{version}-%{release}
 Requires(post):	rpm-helper
-Requires(preun): rpm-helper
+Requires(preun):	rpm-helper
 
 %description -n	cgroup
 Control groups infrastructure. The tools to manipulate, control, administrate
 and monitor control groups and the associated controllers.
 
-%package -n	pam_%{mname}
+%package -n pam_%{mname}
 Summary:	A Pluggable Authentication Module for libcgroup
 Group:		System/Libraries
 Requires:	%{libname} = %{version}-%{release}
@@ -52,7 +49,7 @@ Requires:	%{libname} = %{version}-%{release}
 Linux-PAM module, which allows administrators to classify the user's login
 processes to pre-configured control group.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	Libraries to control and monitor control groups
 Group:		System/Libraries
 # binaries are statically linked, so while they don't require the library,
@@ -64,7 +61,7 @@ Requires:	%{mname} = %{version}-%{release}
 Control groups infrastructure. The library to manipulate, control, administrate
 and monitor control groups and the associated controllers.
 
-%package -n	%{devname}
+%package -n %{devname}
 Summary:	Development libraries to develop applications that utilize control groups
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
@@ -77,15 +74,20 @@ provide scripts to manage that configuration.
 
 %prep
 %setup -q
-%apply_patches
-
-cp %{SOURCE4} README.OpenMandriva
+%patch0 -p1 -b .config-patch
+%patch1 -p1 -b .chmod
+%patch2 -p1 -b .coverity
+%patch3 -p1 -b .fread
+%patch4 -p1 -b .templates-fix
+%patch5 -p2 -b .lex
+%patch6 -p1
 
 %build
-%configure2_5x	--bindir=/bin \
-		--sbindir=/sbin \
-		--libdir=/%{_lib} \
-		--enable-opaque-hierarchy="name=systemd"
+%configure \
+	--libdir=/%{_lib} \
+	--disable-daemon \
+	--enable-opaque-hierarchy="name=systemd"
+
 %make
 
 %install
@@ -94,10 +96,7 @@ cp %{SOURCE4} README.OpenMandriva
 # install config files
 install -m644 samples/cgconfig.conf -D %{buildroot}%{_sysconfdir}/cgconfig.conf
 install -m644 samples/cgconfig.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig/cgconfig
-install -m644 samples/cgrules.conf -D %{buildroot}%{_sysconfdir}/cgrules.conf
 install -m644 samples/cgsnapshot_blacklist.conf %{buildroot}/%{_sysconfdir}/cgsnapshot_blacklist.conf
-
-
 
 # sanitize pam module, we need only pam_cgroup.so in the right directory
 rm -f %{buildroot}/%{_lib}/security/pam_cgroup.so
@@ -107,10 +106,8 @@ rm -f %{buildroot}/%{_lib}/security/pam_cgroup.la
 
 # install unit and sysconfig files
 install -d %{buildroot}%{_unitdir}
-install -m 644 %SOURCE1 %{buildroot}%{_unitdir}/
-install -m 644 %SOURCE2 %{buildroot}%{_unitdir}/
+install -m 644 %{SOURCE1} %{buildroot}%{_unitdir}/
 install -d %{buildroot}%{_sysconfdir}/sysconfig
-install -m 644 %SOURCE3 %{buildroot}%{_sysconfdir}/sysconfig/cgred
 
 # move the devel stuff to /usr
 mkdir -p %{buildroot}%{_libdir}
@@ -122,44 +119,28 @@ ln -sf ../../%{_lib}/lib%{mname}.so.%{major} %{buildroot}%{_libdir}/lib%{mname}.
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
 mv -f %{buildroot}/%{_lib}/pkgconfig/%{name}.pc %{buildroot}%{_libdir}/pkgconfig
 
-# For now we will keep this, but this will be moved to /sys/fs/cgroup in later versions
-# pre-create /cgroup directory
-mkdir -p %{buildroot}/cgroup
+install -d %{buildroot}%{_presetdir}
+cat > %{buildroot}%{_presetdir}/86-libcgroup.preset << EOF
+enable cgconfig.service
+EOF
+
+rm -f %{buildroot}%{_mandir}/man5/cgred.conf.5*
+rm -f %{buildroot}%{_mandir}/man5/cgrules.conf.5*
+rm -f %{buildroot}%{_mandir}/man8/cgrulesengd.8*
 
 %pre -n %{mname}
 %_pre_groupadd cgred
 
-%post -n %{mname}
-%_post_service cgred
-%_post_service cgconfig
-
-%preun -n %{mname}
-%_preun_service cgconfig
-%_preun_service cgred
-
 %files -n %{mname}
-%doc README_daemon README.OpenMandriva
-%dir /cgroup
-%config(noreplace) %{_sysconfdir}/sysconfig/cgred
+%doc README_daemon
 %config(noreplace) %{_sysconfdir}/sysconfig/cgconfig
 %config(noreplace) %{_sysconfdir}/cgconfig.conf
-%config(noreplace) %{_sysconfdir}/cgrules.conf
 %config(noreplace) %{_sysconfdir}/cgsnapshot_blacklist.conf
-%{_mandir}/man[158]/*.[158]*
+%{_presetdir}/86-libcgroup.preset
 %{_unitdir}/cgconfig.service
-%{_unitdir}/cgred.service
-/bin/cgclassify
-/bin/cgcreate
-/bin/cgdelete
-/bin/cgexec
-/bin/cgget
-/bin/cgset
-/bin/cgsnapshot
-/bin/lscgroup
-/bin/lssubsys
-/sbin/cgclear
-/sbin/cgconfigparser
-/sbin/cgrulesengd
+%{_bindir}/*
+%{_sbindir}/*
+%{_mandir}/man[158]/*.[158]*
 
 %files -n pam_%{mname}
 /%{_lib}/security/pam_cgroup.so
