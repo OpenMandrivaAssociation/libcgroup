@@ -74,7 +74,13 @@ provide scripts to manage that configuration.
 
 %prep
 %setup -q
-%apply_patches
+%patch0 -p1 -b .config-patch
+%patch1 -p1 -b .chmod
+%patch2 -p1 -b .coverity
+%patch3 -p1 -b .fread
+%patch4 -p1 -b .templates-fix
+%patch5 -p2 -b .lex
+%patch6 -p1
 
 cp %{SOURCE4}
 
