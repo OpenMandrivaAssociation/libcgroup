@@ -82,8 +82,6 @@ provide scripts to manage that configuration.
 %patch5 -p2 -b .lex
 %patch6 -p1
 
-cp %{SOURCE4}
-
 %build
 %configure \
 	--libdir=/%{_lib} \
