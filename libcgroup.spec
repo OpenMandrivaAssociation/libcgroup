@@ -7,7 +7,7 @@ Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
 Version:	0.41
-Release:	4
+Release:	5
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
@@ -19,6 +19,7 @@ Patch3:		libcgroup-0.40.rc1-fread.patch
 Patch4:		libcgroup-0.40.rc1-templates-fix.patch
 Patch5:		libcgroup-0.41-lex.patch
 Patch6:		libcgroup-0.41-api.c-support-for-setting-multiline-values-in-contro.patch
+Patch7:		libcgroup-0.41-api.c-fix-order-of-memory-subsystem-parameters.patch
 BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
@@ -154,4 +155,3 @@ rm -f %{buildroot}%{_mandir}/man8/cgrulesengd.8*
 %{_includedir}/libcgroup
 %{_libdir}/pkgconfig/%{name}.pc
 %{_libdir}/lib%{mname}.so
-
