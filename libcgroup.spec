@@ -84,6 +84,11 @@ provide scripts to manage that configuration.
 %patch6 -p1
 
 %build
+%ifarch %{ix86}
+export CC=gcc
+export CXX=g++
+%endif
+
 %configure \
 	--libdir=/%{_lib} \
 	--disable-daemon \
