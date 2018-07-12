@@ -7,7 +7,7 @@ Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
 Version:	0.41
-Release:	5
+Release:	6
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
@@ -138,12 +138,11 @@ rm -f %{buildroot}%{_mandir}/man8/cgrulesengd.8*
 %_pre_groupadd cgred
 
 %files -n %{mname}
-%doc README_daemon
 %config(noreplace) %{_sysconfdir}/sysconfig/cgconfig
 %config(noreplace) %{_sysconfdir}/cgconfig.conf
 %config(noreplace) %{_sysconfdir}/cgsnapshot_blacklist.conf
 %{_presetdir}/86-libcgroup.preset
-%{_unitdir}/cgconfig.service
+%{_systemunitdir}/cgconfig.service
 %{_bindir}/*
 %{_sbindir}/*
 %{_mandir}/man[158]/*.[158]*
