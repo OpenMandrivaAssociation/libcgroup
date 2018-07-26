@@ -20,6 +20,13 @@ Patch4:		libcgroup-0.40.rc1-templates-fix.patch
 Patch5:		libcgroup-0.41-lex.patch
 Patch6:		libcgroup-0.41-api.c-support-for-setting-multiline-values-in-contro.patch
 Patch7:		libcgroup-0.41-api.c-fix-order-of-memory-subsystem-parameters.patch
+Patch8:		libcgroup-0.41-api.c-preserve-dirty-flag.patch
+Patch9:		libcgroup-0.41-change-cgroup-of-threads.patch
+Patch10:	libcgroup-0.41-fix-infinite-loop.patch
+Patch11:	libcgroup-0.41-prevent-buffer-overflow.patch
+Patch12:	libcgroup-0.41-tasks-file-warning.patch
+Patch13:	libcgroup-0.41-fix-log-level.patch
+Patch14:	libcgroup-0.41-size-of-controller-values.patch
 BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
@@ -83,6 +90,14 @@ provide scripts to manage that configuration.
 %patch4 -p1 -b .templates-fix
 %patch5 -p2 -b .lex
 %patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
 
 %build
 %ifarch %{ix86}
