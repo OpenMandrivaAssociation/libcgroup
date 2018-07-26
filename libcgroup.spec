@@ -24,6 +24,7 @@ BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
 BuildRequires:	coreutils
+BuildRequires:	systemd-macros
 Requires(pre):	shadow
 
 %description
