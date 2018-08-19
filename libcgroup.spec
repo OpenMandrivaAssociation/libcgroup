@@ -7,7 +7,7 @@ Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
 Version:	0.41
-Release:	6
+Release:	7
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
@@ -32,6 +32,8 @@ BuildRequires:	byacc
 BuildRequires:	flex
 BuildRequires:	coreutils
 BuildRequires:	systemd-macros
+# For _pre_groupadd
+BuildRequires:	rpm-helper
 Requires(pre):	shadow
 
 %description
