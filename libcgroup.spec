@@ -1,13 +1,13 @@
-%define	major 1
-%define	mname cgroup
-%define	libname	%mklibname %{mname} %{major}
-%define	devname	%mklibname %{mname} -d
+%define major 1
+%define mname cgroup
+%define libname %mklibname %{mname} %{major}
+%define devname %mklibname %{mname} -d
 
 Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
 Version:	0.41
-Release:	7
+Release:	8
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
@@ -152,6 +152,9 @@ rm -f %{buildroot}%{_mandir}/man5/cgred.conf.5*
 rm -f %{buildroot}%{_mandir}/man5/cgrules.conf.5*
 rm -f %{buildroot}%{_mandir}/man8/cgrulesengd.8*
 
+mkdir -p %{buildroot}/bin
+ln -sf %{_bindir}/cgexec %{buildroot}/bin/cgexec
+
 %pre -n %{mname}
 %_pre_groupadd cgred
 
@@ -160,7 +163,8 @@ rm -f %{buildroot}%{_mandir}/man8/cgrulesengd.8*
 %config(noreplace) %{_sysconfdir}/cgconfig.conf
 %config(noreplace) %{_sysconfdir}/cgsnapshot_blacklist.conf
 %{_presetdir}/86-libcgroup.preset
-%{_systemunitdir}/cgconfig.service
+%{_unitdir}/cgconfig.service
+/bin/cgexec
 %{_bindir}/*
 %{_sbindir}/*
 %{_mandir}/man[158]/*.[158]*
