@@ -7,7 +7,7 @@ Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
 Version:	0.41
-Release:	9
+Release:	10
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
@@ -108,14 +108,13 @@ export CXX=g++
 %endif
 
 %configure \
-	--libdir=/%{_lib} \
 	--disable-daemon \
 	--enable-opaque-hierarchy="name=systemd"
 
-%make
+%make_build
 
 %install
-%makeinstall_std
+%make_install
 
 # install config files
 install -m644 samples/cgconfig.conf -D %{buildroot}%{_sysconfdir}/cgconfig.conf
@@ -123,25 +122,15 @@ install -m644 samples/cgconfig.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig
 install -m644 samples/cgsnapshot_blacklist.conf %{buildroot}/%{_sysconfdir}/cgsnapshot_blacklist.conf
 
 # sanitize pam module, we need only pam_cgroup.so in the right directory
-rm -f %{buildroot}/%{_lib}/security/pam_cgroup.so
-mv -f %{buildroot}/%{_lib}/security/pam_cgroup.so.*.*.* %{buildroot}/%{_lib}/security/pam_cgroup.so
-rm -f %{buildroot}/%{_lib}/security/pam_cgroup.so.*
-rm -f %{buildroot}/%{_lib}/security/pam_cgroup.la
+rm -f %{buildroot}%{_libdir}/security/pam_cgroup.so
+mv -f %{buildroot}%{_libdir}/security/pam_cgroup.so.*.*.* %{buildroot}%{_libdir}/security/pam_cgroup.so
+rm -f %{buildroot}%{_libdir}/security/pam_cgroup.so.*
+rm -f %{buildroot}%{_libdir}/security/pam_cgroup.la
 
 # install unit and sysconfig files
 install -d %{buildroot}%{_unitdir}
 install -m 644 %{SOURCE1} %{buildroot}%{_unitdir}/
 install -d %{buildroot}%{_sysconfdir}/sysconfig
-
-# move the devel stuff to /usr
-mkdir -p %{buildroot}%{_libdir}
-mv -f %{buildroot}/%{_lib}/lib%{mname}.la %{buildroot}%{_libdir}
-rm -f %{buildroot}/%{_lib}/lib%{mname}.so
-ln -sf ../../%{_lib}/lib%{mname}.so.%{major} %{buildroot}%{_libdir}/lib%{mname}.so
-
-# pkgconfig file as well
-mkdir -p %{buildroot}%{_libdir}/pkgconfig
-mv -f %{buildroot}/%{_lib}/pkgconfig/%{name}.pc %{buildroot}%{_libdir}/pkgconfig
 
 install -d %{buildroot}%{_presetdir}
 cat > %{buildroot}%{_presetdir}/86-libcgroup.preset << EOF
@@ -152,9 +141,6 @@ rm -f %{buildroot}%{_mandir}/man5/cgred.conf.5*
 rm -f %{buildroot}%{_mandir}/man5/cgrules.conf.5*
 rm -f %{buildroot}%{_mandir}/man8/cgrulesengd.8*
 
-mkdir -p %{buildroot}/bin
-ln -sf %{_bindir}/cgexec %{buildroot}/bin/cgexec
-
 %pre -n %{mname}
 %_pre_groupadd cgred
 
@@ -164,17 +150,15 @@ ln -sf %{_bindir}/cgexec %{buildroot}/bin/cgexec
 %config(noreplace) %{_sysconfdir}/cgsnapshot_blacklist.conf
 %{_presetdir}/86-libcgroup.preset
 %{_unitdir}/cgconfig.service
-/bin/cgexec
 %{_bindir}/*
-%{_sbindir}/*
 %{_mandir}/man[158]/*.[158]*
 
 %files -n pam_%{mname}
-/%{_lib}/security/pam_cgroup.so
+%{_libdir}/security/pam_cgroup.so
 
 %files -n %{libname}
-/%{_lib}/lib%{mname}.so.%{major}
-/%{_lib}/lib%{mname}.so.%{major}.*
+%{_libdir}/lib%{mname}.so.%{major}
+%{_libdir}/lib%{mname}.so.%{major}.*
 
 %files -n %{devname}
 %{_includedir}/libcgroup.h
