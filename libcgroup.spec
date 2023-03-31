@@ -7,7 +7,7 @@ Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
 Version:	0.41
-Release:	10
+Release:	11
 License:	LGPLv2+
 URL:		http://libcg.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
