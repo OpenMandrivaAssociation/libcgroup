@@ -1,12 +1,13 @@
-Fedora specific configuration - we want to mount all controllers by default for libvirt.
-
-diff -up libcgroup-0.34/samples/cgconfig.conf.orig libcgroup-0.34/samples/cgconfig.conf
---- libcgroup-0.34/samples/cgconfig.conf.orig	2009-03-04 10:40:06.000000000 +0100
-+++ libcgroup-0.34/samples/cgconfig.conf	2009-10-19 10:17:37.000000000 +0200
-@@ -10,39 +10,8 @@
- #  WITHOUT ANY WARRANTY; without even the implied warranty of
- #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- #
+diff -up libcgroup-3.1.0/samples/config/cgconfig.conf.config-patch libcgroup-3.1.0/samples/config/cgconfig.conf
+--- libcgroup-3.1.0/samples/config/cgconfig.conf.config-patch	2023-10-17 15:40:32.792681299 +0200
++++ libcgroup-3.1.0/samples/config/cgconfig.conf	2023-10-17 15:41:18.629062142 +0200
+@@ -1,42 +1,4 @@
+-# SPDX-License-Identifier: LGPL-2.1-only
+-#
+-#  Copyright IBM Corporation. 2007
+-#
+-#  Authors:	Balbir Singh <balbir@linux.vnet.ibm.com>
+-#
 -#group daemons/www {
 -#	perm {
 -#		task {
@@ -22,7 +23,7 @@ diff -up libcgroup-0.34/samples/cgconfig.conf.orig libcgroup-0.34/samples/cgconf
 -#		cpu.shares = 1000;
 -#	}
 -#}
- #
+-#
 -#group daemons/ftp {
 -#	perm {
 -#		task {
@@ -47,10 +48,9 @@ diff -up libcgroup-0.34/samples/cgconfig.conf.orig libcgroup-0.34/samples/cgconf
 +# so there is not much to do.
 +# See man cgconfig.conf for further details, how to create groups
 +# on system boot using this file.
-+
-diff -up libcgroup-0.35.1/samples/cgconfig.sysconfig.orig libcgroup-0.35.1/samples/cgconfig.sysconfig
---- libcgroup-0.35.1/samples/cgconfig.sysconfig.orig	2010-03-09 14:56:34.000000000 +0100
-+++ libcgroup-0.35.1/samples/cgconfig.sysconfig	2010-03-09 16:30:12.000000000 +0100
+diff -up libcgroup-3.1.0/samples/config/cgconfig.sysconfig.config-patch libcgroup-3.1.0/samples/config/cgconfig.sysconfig
+--- libcgroup-3.1.0/samples/config/cgconfig.sysconfig.config-patch	2023-07-28 22:12:30.000000000 +0200
++++ libcgroup-3.1.0/samples/config/cgconfig.sysconfig	2023-10-17 15:40:32.792681299 +0200
 @@ -5,8 +5,6 @@
  # controller to limit cpu.shares of this default group and allowing some more
  # important group take most of the CPU.

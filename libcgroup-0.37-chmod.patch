@@ -1,18 +1,16 @@
-diff -up libcgroup-0.41/src/api.c.chmod libcgroup-0.41/src/api.c
---- libcgroup-0.41/src/api.c.chmod	2014-01-13 15:05:56.000000000 +0100
-+++ libcgroup-0.41/src/api.c	2014-01-13 20:41:55.255577622 +0100
-@@ -153,6 +153,10 @@ static int cg_chown_file(FTS *fts, FTSEN
+diff -up libcgroup-3.1.0/src/api.c.chmod libcgroup-3.1.0/src/api.c
+--- libcgroup-3.1.0/src/api.c.chmod	2023-10-17 15:41:40.234241285 +0200
++++ libcgroup-3.1.0/src/api.c	2023-10-17 15:43:27.065124051 +0200
+@@ -178,11 +178,17 @@ static int cg_chown_file(FTS *fts, FTSEN
  	return ret;
  }
  
 +int cg_chmod_file(FTS *fts, FTSENT *ent, mode_t dir_mode,
-+	int dirm_change, mode_t file_mode, int filem_change,
-+	int owner_is_umask);
++       int dirm_change, mode_t file_mode, int filem_change,
++       int owner_is_umask);
 +
- /*
-  * TODO: Need to decide a better place to put this function.
-  */
-@@ -160,6 +164,8 @@ static int cg_chown_recursive(char **pat
+ /* TODO: Need to decide a better place to put this function. */
+ static int cg_chown_recursive(char **path, uid_t owner, gid_t group)
  {
  	int ret = 0;
  	FTS *fts;
@@ -20,9 +18,9 @@ diff -up libcgroup-0.41/src/api.c.chmod libcgroup-0.41/src/api.c
 +	mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
  
  	cgroup_dbg("chown: path is %s\n", *path);
- 	fts = fts_open(path, FTS_PHYSICAL | FTS_NOCHDIR |
-@@ -177,6 +183,7 @@ static int cg_chown_recursive(char **pat
- 			cgroup_warn("Warning: fts_read failed\n");
+ 	fts = fts_open(path, FTS_PHYSICAL | FTS_NOCHDIR | FTS_NOSTAT, NULL);
+@@ -200,6 +206,7 @@ static int cg_chown_recursive(char **pat
+ 			cgroup_warn("fts_read failed\n");
  			break;
  		}
 +		cg_chmod_file(fts, ent, mode, 0, mode, 1, 1);

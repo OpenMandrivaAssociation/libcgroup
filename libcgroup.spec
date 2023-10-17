@@ -1,37 +1,30 @@
-%define major 1
+%define _disable_rebuild_configure 1
+%define major 3
 %define mname cgroup
-%define libname %mklibname %{mname} %{major}
+%define oldlibname %mklibname %{mname} 1
+%define libname %mklibname %{mname}
 %define devname %mklibname %{mname} -d
 
 Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
-Version:	0.41
-Release:	11
+Version:	3.1.0
+Release:	1
 License:	LGPLv2+
-URL:		http://libcg.sourceforge.net/
-Source0:	http://downloads.sourceforge.net/libcg/%{name}/v%{version}/%{name}-%{version}.tar.bz2
+URL:		https://github.com/libcgroup/libcgroup
+Source0:	https://github.com/libcgroup/libcgroup/archive/refs/tags/v3.1.0.tar.gz
 Source1:	cgconfig.service
 Patch0:		fedora-config.patch
 Patch1:		libcgroup-0.37-chmod.patch
-Patch2:		libcgroup-0.40.rc1-coverity.patch
-Patch3:		libcgroup-0.40.rc1-fread.patch
-Patch4:		libcgroup-0.40.rc1-templates-fix.patch
-Patch5:		libcgroup-0.41-lex.patch
-Patch6:		libcgroup-0.41-api.c-support-for-setting-multiline-values-in-contro.patch
-Patch7:		libcgroup-0.41-api.c-fix-order-of-memory-subsystem-parameters.patch
-Patch8:		libcgroup-0.41-api.c-preserve-dirty-flag.patch
-Patch9:		libcgroup-0.41-change-cgroup-of-threads.patch
-Patch10:	libcgroup-0.41-fix-infinite-loop.patch
-Patch11:	libcgroup-0.41-prevent-buffer-overflow.patch
-Patch12:	libcgroup-0.41-tasks-file-warning.patch
-Patch13:	libcgroup-0.41-fix-log-level.patch
-Patch14:	libcgroup-0.41-size-of-controller-values.patch
+Patch2:		https://src.fedoraproject.org/rpms/libcgroup/blob/rawhide/f/libcgroup-0.40.rc1-coverity.patch
+Patch3:		https://src.fedoraproject.org/rpms/libcgroup/blob/rawhide/f/libcgroup-0.40.rc1-fread.patch
+Patch4:		https://src.fedoraproject.org/rpms/libcgroup/blob/rawhide/f/libcgroup-0.40.rc1-templates-fix.patch
 BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
 BuildRequires:	coreutils
 BuildRequires:	systemd-macros
+BuildRequires:	gtest-source
 # For _pre_groupadd
 BuildRequires:	rpm-helper
 Requires(pre):	shadow
@@ -67,6 +60,7 @@ Group:		System/Libraries
 # anything linked against the library will require the config files etc.
 # rovided by the main package
 Requires:	%{mname} = %{version}-%{release}
+%rename %{oldlibname}
 
 %description -n	%{libname}
 Control groups infrastructure. The library to manipulate, control, administrate
@@ -84,32 +78,16 @@ future allow creation of persistent configuration for control groups and
 provide scripts to manage that configuration.
 
 %prep
-%setup -q
-%patch0 -p1 -b .config-patch
-%patch1 -p1 -b .chmod
-%patch2 -p1 -b .coverity
-%patch3 -p1 -b .fread
-%patch4 -p1 -b .templates-fix
-%patch5 -p2 -b .lex
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
+%autosetup -p1
+cp -a %{_prefix}/src/googletest .
+sed -i -e 's,^git,# git,;s,^cmake,# cmake,;s,^make,# make,' bootstrap.sh
+./bootstrap.sh
 
 %build
-%ifarch %{ix86}
-export CC=gcc
-export CXX=g++
-%endif
-
 %configure \
 	--disable-daemon \
-	--enable-opaque-hierarchy="name=systemd"
+	--enable-opaque-hierarchy="name=systemd" \
+	--enable-systemd
 
 %make_build
 
@@ -117,14 +95,11 @@ export CXX=g++
 %make_install
 
 # install config files
-install -m644 samples/cgconfig.conf -D %{buildroot}%{_sysconfdir}/cgconfig.conf
-install -m644 samples/cgconfig.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig/cgconfig
-install -m644 samples/cgsnapshot_blacklist.conf %{buildroot}/%{_sysconfdir}/cgsnapshot_blacklist.conf
+install -m644 samples/config/cgconfig.conf -D %{buildroot}%{_sysconfdir}/cgconfig.conf
+install -m644 samples/config/cgconfig.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig/cgconfig
+install -m644 samples/config/cgsnapshot_*list.conf %{buildroot}/%{_sysconfdir}/
 
 # sanitize pam module, we need only pam_cgroup.so in the right directory
-rm -f %{buildroot}%{_libdir}/security/pam_cgroup.so
-mv -f %{buildroot}%{_libdir}/security/pam_cgroup.so.*.*.* %{buildroot}%{_libdir}/security/pam_cgroup.so
-rm -f %{buildroot}%{_libdir}/security/pam_cgroup.so.*
 rm -f %{buildroot}%{_libdir}/security/pam_cgroup.la
 
 # install unit and sysconfig files
@@ -147,7 +122,7 @@ rm -f %{buildroot}%{_mandir}/man8/cgrulesengd.8*
 %files -n %{mname}
 %config(noreplace) %{_sysconfdir}/sysconfig/cgconfig
 %config(noreplace) %{_sysconfdir}/cgconfig.conf
-%config(noreplace) %{_sysconfdir}/cgsnapshot_blacklist.conf
+%config(noreplace) %{_sysconfdir}/cgsnapshot_*list.conf
 %{_presetdir}/86-libcgroup.preset
 %{_unitdir}/cgconfig.service
 %{_bindir}/*
