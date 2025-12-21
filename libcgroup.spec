@@ -19,6 +19,11 @@ Patch1:		libcgroup-0.37-chmod.patch
 Patch2:		https://src.fedoraproject.org/rpms/libcgroup/blob/rawhide/f/libcgroup-0.40.rc1-coverity.patch
 Patch3:		https://src.fedoraproject.org/rpms/libcgroup/blob/rawhide/f/libcgroup-0.40.rc1-fread.patch
 Patch4:		https://src.fedoraproject.org/rpms/libcgroup/blob/rawhide/f/libcgroup-0.40.rc1-templates-fix.patch
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	pam-devel
 BuildRequires:	byacc
 BuildRequires:	flex
