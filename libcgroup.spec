@@ -8,7 +8,7 @@
 Summary:	Tools and libraries to control and monitor control groups
 Name:		lib%{mname}
 Group:		System/Base
-Version:	3.1.0
+Version:	3.2.0
 Release:	1
 License:	LGPLv2+
 URL:		https://github.com/libcgroup/libcgroup
@@ -83,7 +83,7 @@ future allow creation of persistent configuration for control groups and
 provide scripts to manage that configuration.
 
 %prep
-%autosetup -p1
+%autosetup -p1 -n libcgroup-3.1.0
 cp -a %{_prefix}/src/googletest .
 sed -i -e 's,^git,# git,;s,^cmake,# cmake,;s,^make,# make,' bootstrap.sh
 ./bootstrap.sh
